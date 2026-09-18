@@ -53,6 +53,8 @@ void	ReadProfile(void);
 void	WriteProfile(void);
 int	isHoryday(int yy, int mon, int dd);
 long	Horyday_load(LPTSTR fname);
+//	iniファイルを生成
+void	CreateProfile();
 
 /*	一月の最大日数	*/
 static	int	monmax[13]={0,31,28,31,30,31,30,31,31,30,31,30,31};
@@ -227,6 +229,7 @@ void	Calender_ini(LPTSTR path)
 	if(c1!=0){
 		/* 見つからない：iniファイル名をargv[0]から再生成	*/
 		_makepathT(Inifile,_T(""), argv0,_T("wcharm"),_T("ini"));
+		CreateProfile();
 		WriteProfile();		/* iniファイル書き出し */
 	} else {
 		/* 見つかった	*/
@@ -702,6 +705,35 @@ void	WritePrivateProfileColor(LPTSTR lpAppName, LPTSTR lpKeyName, COLORREF col, 
 
 	_stprintf(wkstr, _T("%02X%02X%02X"), GetBValue(col), GetGValue(col), GetRValue(col));
 	WritePrivateProfileString(lpAppName, lpKeyName, wkstr, lpFileName);
+}
+
+//	iniファイルを生成
+void	CreateProfile()
+{
+	FILE* fp;
+
+	fp = _tfopen(Inifile, "w");
+	if (fp == NULL) {
+		return;
+	}
+
+	fprintf(fp, "[Charmy]\n");
+	fprintf(fp, "; BootPath：Itemメニューのアプリを登録するフォルダ\n");
+	fprintf(fp, "BootPath = .\\boot\n");
+	fprintf(fp, "; DropPath：D&Dで起動するアプリを登録するフォルダ\n");
+	fprintf(fp, "DropPath = .\\drop\n");
+	fprintf(fp, "; Startup：Charmy起動時に起動するアプリ登録するフォルダ\n");
+	fprintf(fp, "Startup = \n");
+	fprintf(fp, "; PathFlg：1の場合、BootPath、DropPath、Startupのパスをiniファイルからの相対パスとして扱う。0の場合は絶対パス\n");
+	fprintf(fp, "PathFlg = 1\n");
+	fprintf(fp, "; LeftPrg：ダブルクリックで起動するアプリの指定。無い場合は電卓(calc.exe)\n");
+	fprintf(fp, "LeftPrg = calc.exe\n");
+	fprintf(fp, "; LeftPathFlg：1の場合LeftPrgのパスをiniファイルからの相対パスとして扱う。0の場合は絶対パス\n");
+	fprintf(fp, "LeftPathFlg = 0\n");
+	fprintf(fp, "; Holyfile：祝日のデータのcsvファイルのパス。無い場合は祝日は表示されない\n");
+	fprintf(fp, "Holyfile = \n");
+
+	fclose(fp);
 }
 
 void	WriteProfile()

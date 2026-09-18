@@ -91,6 +91,8 @@
 0.49	‚Ç‚¤‚àƒtƒ@ƒCƒ‹ŒŸõ‚Å—áŠOƒGƒ‰[‚É‚È‚Á‚Ä‚µ‚Ü‚¤c
 	ƒtƒ@ƒCƒ‹ŒŸõŽž‚ÌˆêŽžƒƒ‚ƒŠ‚ª‚¤‚Ü‚­‚¢‚Á‚Ä‚¢‚È‚¢‚Á‚Û‚¢B
 	‚â‚Þ‚È‚­CE”Å“¯—l‚ÉŒÅ’èƒoƒbƒtƒ@‚ðŠm•Û‚µ‚½B
+0.50	ŒöŠJ‚É‚Þ‚¯‚ÄAiniƒtƒ@ƒCƒ‹‚ª–³‚¢ê‡‚ÉƒRƒƒ“ƒg•t‚«‚Ìiniƒtƒ@ƒCƒ‹‚ð
+	¶¬‚µ‚Ä‚Ý‚½B
 */
 #include	<windows.h>
 #include	<tchar.h>
@@ -125,7 +127,7 @@ TCHAR	szAppName[256];					// ƒAƒvƒŠ–¼(StringTable‚©‚ç“WŠJ‚·‚é‚Ì‚Å‚±‚±‚Í—ÌˆæŠm•Û‚
 //	ƒo[ƒWƒ‡ƒ“”Ô†‚ÍƒŠƒ\[ƒX‚Ö‘g‚Ýž‚ñ‚¾
 #else
 TCHAR	szAppName[256] = _T("Charmy for Win32");	// ƒAƒvƒŠ–¼
-#define	VERNO	"0.46"
+#define	VERNO	"0.50"
 #endif // _MSC_VER
 
 /*	ƒXƒŒƒbƒh—p	*/
