@@ -56,6 +56,15 @@ long	Horyday_load(LPTSTR fname);
 //	iniファイルを生成
 void	CreateProfile();
 
+#define	ALMAX	32		// アラーム最大数
+int	Armmax;			// アラーム数MAX
+TCHAR	Armtime[ALMAX][10];	// アラーム時間配列
+TCHAR	ArmWeek[ALMAX][30];	// アラーム曜日。0～6で指定。区切りなし。空の場合は曜日指定なし。
+BOOL	Alonf = FALSE;
+
+BOOL	bOneAL = FALSE;
+TCHAR	OneAlarm[20];		// 1回のみのアラーム文字列
+
 /*	一月の最大日数	*/
 static	int	monmax[13]={0,31,28,31,30,31,30,31,31,30,31,30,31};
 
@@ -243,6 +252,9 @@ void	Calender_ini(LPTSTR path)
 	/* 祝日CSVを読み込む	*/
 	Horyday_load(holyfile);
 	
+	bOneAL = FALSE;
+	OneAlarm[0] = 0;
+
 	/* D&D起動用メニュー初期化 */
 	Dropinit();
 }
@@ -338,6 +350,8 @@ void	Dispclock(HWND hwnd,HDC hdc,LPTSTR fontname,int fontsize,COLORREF bcl,COLOR
 
 	HFONT	hfont,hofont;
 
+	BOOL Alonchk = FALSE;
+
 	GetLocalTime(&st);
 	_stprintf(str, str_org, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 
@@ -349,12 +363,54 @@ void	Dispclock(HWND hwnd,HDC hdc,LPTSTR fontname,int fontsize,COLORREF bcl,COLOR
 	SetTextColor(hdc,fcl);
 	TextOut(hdc, 0, 0, str, _tcslen(str));
 
-#if 0
-	アラーム表示
-	if(st.wHour==1 && st.wMinute==35){
-		MessageBox(hwnd,_T("アラーム時刻です！"), _T("アラーム"), (MB_OK + MB_ICONEXCLAMATION));
+	// アラーム用文字列生成
+	TCHAR ALchk[20];
+	_stprintf(ALchk, _T("%02d:%02d"), st.wHour, st.wMinute);
+	int week = (monstart(st.wYear, st.wMonth) + st.wDay - 1) % 7;
+
+	Alonchk = FALSE;
+	int i;
+	for (i = 0; i < Armmax; i++) {
+		BOOL wchk = FALSE;
+		if (_tcslen(ArmWeek[i]) > 0) {
+			if (_tcschr(ArmWeek[i], '0' + wchk) != NULL) {
+				wchk = TRUE;
+			}
+		}
+		else {
+			wchk = TRUE;
+		}
+		// 
+		if (_tcscmp(ALchk, Armtime[i]) == 0 && wchk == TRUE) {
+			if (Alonf == FALSE) {
+				// 最前面表示の設定
+				SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, (SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW));
+
+				MessageBox(hwnd, _T("アラーム時刻です！"), _T("アラーム"), (MB_OK + MB_ICONEXCLAMATION));
+
+				// 最前面表示の解除
+				SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, (SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW));
+				Alonf = TRUE;
+			}
+			Alonchk = TRUE;
+		}
 	}
-#endif
+	if (Alonchk == FALSE)Alonf = FALSE;
+
+	if (bOneAL == TRUE) {
+		if (_tcscmp(ALchk, OneAlarm) == 0) {
+			bOneAL = FALSE;
+
+			// 最前面表示の設定
+			SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, (SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW));
+
+			MessageBox(hwnd, _T("アラーム時刻です！"), _T("アラーム"), (MB_OK + MB_ICONEXCLAMATION));
+
+			// 最前面表示の解除
+			SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, (SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW));
+		}
+	}
+
 	if (bTimer == TRUE) {
 		// ダウンタイマ稼働中
 		if (bkTimCnt != st.wSecond) {
@@ -562,6 +618,7 @@ void	ReadProfile()
 	int	l;
 	int	xflg, xflg2;
 	COLORREF	wcol;
+	int	i;
 
 	/* 相対パスフラグ	*/
 	xflg = 0;
@@ -660,6 +717,18 @@ void	ReadProfile()
 	//	d = Val(GetProfStr$("Charmy", "CalStyle", Inifile$))
 	//	If d <> 0 Then Tatef = True Else Tatef = False
 #endif
+	// 'アラーム設定
+	GetPrivateProfileString(WCHARM, _T("AlarmMax"), _T(""), str, 256, Inifile);
+	Armmax = (int)(_ttoi(str));
+	for (i = 0; i < Armmax; i++) {
+		TCHAR tstr[20];
+		_stprintf(tstr, _T("Alarm%02d"), i);
+		GetPrivateProfileString(WCHARM, tstr, _T(""), str, 256, Inifile);
+		_tcscpy(Armtime[i], str);
+		_stprintf(tstr, _T("Almweek%02d"), i);
+		GetPrivateProfileString(WCHARM, tstr, _T(""), str, 256, Inifile);
+		_tcscpy(ArmWeek[i], str);
+	}
 
 	// 'バックカラー
 	wcol = GetPrivateProfileColor(WCHARM, _T("ColorBack"), Inifile);
@@ -732,6 +801,12 @@ void	CreateProfile()
 	fprintf(fp, "LeftPathFlg = 0\n");
 	fprintf(fp, "; Holyfile：祝日のデータのcsvファイルのパス。無い場合は祝日は表示されない\n");
 	fprintf(fp, "Holyfile = \n");
+	fprintf(fp, "; AlarmMax：アラーム数。最大32\n");
+	fprintf(fp, "AlarmMax = 0\n");
+	fprintf(fp, "; Alarm00～Alarm32：アラーム時刻\n");
+	fprintf(fp, "Alarm00 =\n");
+	fprintf(fp, "; Almweek00～Almweek32：アラーム曜日。0～6で指定。区切りなし。空の場合は曜日指定なし。\n");
+	fprintf(fp, "Almweek00 =\n");
 
 	fclose(fp);
 }
@@ -886,3 +961,10 @@ long	Horyday_load(LPTSTR fname)
 
 	return lmax;
 }
+
+void	SetOneAlarm(LPTSTR atime)
+{
+	_tcscpy(OneAlarm, atime);
+	bOneAL = TRUE;
+}
+

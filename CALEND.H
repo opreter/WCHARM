@@ -35,3 +35,5 @@ extern	void	Redrow_Calender(HDC hdc);
 extern	void	Dispclock(HWND hwnd,HDC hdc,LPTSTR fontname,int fontsize,COLORREF bcl,COLORREF fcl);
 /*	ウィンドウをカレンダーのサイズにリサイズ	*/
 extern	void	Resize_Calender(HWND hwnd);
+//	１回のみのアラームをセット
+extern	void	SetOneAlarm(LPTSTR atime);

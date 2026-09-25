@@ -93,8 +93,12 @@
 	‚â‚Ş‚È‚­CE”Å“¯—l‚ÉŒÅ’èƒoƒbƒtƒ@‚ğŠm•Û‚µ‚½B
 0.50	ŒöŠJ‚É‚Ş‚¯‚ÄAiniƒtƒ@ƒCƒ‹‚ª–³‚¢ê‡‚ÉƒRƒƒ“ƒg•t‚«‚Ìiniƒtƒ@ƒCƒ‹‚ğ
 	¶¬‚µ‚Ä‚İ‚½B
+0.51	‚Æ‚è‚ ‚¦‚¸ƒAƒ‰[ƒ€‚ğÀ‘•B—j“ú‚Å–Â“®‚µ‚½‚è‚µ‚È‚©‚Á‚½‚è‚·‚é‚Ì‚à
+	‚È‚ñ‚Æ‚©‚µ‚½B
+
 */
 #include	<windows.h>
+#include	<commctrl.h>
 #include	<tchar.h>
 #include	<stdio.h>
 
@@ -127,7 +131,7 @@ TCHAR	szAppName[256];					// ƒAƒvƒŠ–¼(StringTable‚©‚ç“WŠJ‚·‚é‚Ì‚Å‚±‚±‚Í—ÌˆæŠm•Û‚
 //	ƒo[ƒWƒ‡ƒ“”Ô†‚ÍƒŠƒ\[ƒX‚Ö‘g‚İ‚ñ‚¾
 #else
 TCHAR	szAppName[256] = _T("Charmy for Win32");	// ƒAƒvƒŠ–¼
-#define	VERNO	"0.50"
+#define	VERNO	"0.51"
 #endif // _MSC_VER
 
 /*	ƒXƒŒƒbƒh—p	*/
@@ -482,15 +486,29 @@ LRESULT CALLBACK DialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 LRESULT CALLBACK DialogArmProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int	wmId;
+	TCHAR	edit_str[100];
 
 	switch (message)
 	{
 	case WM_INITDIALOG:
+	{
+		HWND hwndDTP = GetDlgItem(hDlg, IDC_DATETIMEPICKER1);
+		SendMessage(hwndDTP, DTM_SETFORMAT, 0, (LPARAM)TEXT("HH:mm"));
+	}
 		return TRUE;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
 		switch (wmId) {
 		case IDOK:
+			// ƒeƒLƒXƒgƒ{ƒbƒNƒX‚©‚ç“¾‚é
+			GetDlgItemText(hDlg,
+				IDC_DATETIMEPICKER1,
+				(LPTSTR)edit_str,
+				sizeof(edit_str));
+
+			// ƒAƒ‰[ƒ€‚ğƒZƒbƒg
+			SetOneAlarm(edit_str);
+
 			EndDialog(hDlg, IDOK);
 			return TRUE;
 		case IDCANCEL:
