@@ -49,6 +49,8 @@ BOOL	bTimer;			// カウントダウンタイマ起動中
 unsigned long lnTimer;		// カウントダウンタイマ。秒単位
 int	bkTimCnt;		// 前回の秒
 
+extern	void	CalendCheckmenu(HMENU hmnu);
+
 void	ReadProfile(void);
 void	WriteProfile(void);
 int	isHoryday(int yy, int mon, int dd);
@@ -432,6 +434,11 @@ void	Dispclock(HWND hwnd,HDC hdc,LPTSTR fontname,int fontsize,COLORREF bcl,COLOR
 
 				// 最前面表示の解除
 				SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, (SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW));
+				{
+					HMENU	hmenu;
+					hmenu = GetMenu(hwnd);	/* メニューハンドルを得る	*/
+					CalendCheckmenu(hmenu);	/* メニューのチェックを付け直す	*/
+				}
 			}
 		}
 	}
@@ -515,8 +522,6 @@ void	Redrow_Calender(HDC hdc)
 	SelectObject(hdc,hofont);
 	DeleteObject(hfont);
 }
-
-extern	void	CalendCheckmenu(HMENU hmnu);
 
 /*	ウィンドウをカレンダーのサイズにリサイズ	*/
 void	Resize_Calender(HWND hwnd)

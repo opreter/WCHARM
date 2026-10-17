@@ -95,6 +95,8 @@
 	¶¬‚µ‚Ä‚İ‚½B
 0.51	‚Æ‚è‚ ‚¦‚¸ƒAƒ‰[ƒ€‚ğÀ‘•B—j“ú‚Å–Â“®‚µ‚½‚è‚µ‚È‚©‚Á‚½‚è‚·‚é‚Ì‚à
 	‚È‚ñ‚Æ‚©‚µ‚½B
+0.52	ƒ^ƒCƒ}‰Ò“­’†‚ªŒ©‚©‚¯‚í‚©‚ç‚È‚©‚Á‚½‚Ì‚ÅAƒ^ƒCƒ}‰Ò“­’†‚Ìê‡‚Í
+	ƒƒjƒ…[‚Ìƒ^ƒCƒ}€–Ú‚Éƒ`ƒFƒbƒN‚ğ“ü‚ê‚é‚±‚Æ‚É‚µ‚½B
 
 */
 #include	<windows.h>
@@ -131,7 +133,7 @@ TCHAR	szAppName[256];					// ƒAƒvƒŠ–¼(StringTable‚©‚ç“WŠJ‚·‚é‚Ì‚Å‚±‚±‚Í—ÌˆæŠm•Û‚
 //	ƒo[ƒWƒ‡ƒ“”Ô†‚ÍƒŠƒ\[ƒX‚Ö‘g‚İ‚ñ‚¾
 #else
 TCHAR	szAppName[256] = _T("Charmy for Win32");	// ƒAƒvƒŠ–¼
-#define	VERNO	"0.51"
+#define	VERNO	"0.52"
 #endif // _MSC_VER
 
 /*	ƒXƒŒƒbƒh—p	*/
@@ -165,6 +167,7 @@ TCHAR	Ddr[20],Ddir[1024],Dname[256],Dext[256];
 extern	void	Pbs_exitwin(HWND hwnd,int Mode);
 //	ƒŠƒ\[ƒX‚©‚çƒvƒƒ_ƒNƒgƒo[ƒWƒ‡ƒ“•¶š—ñ‚ğ“Ç‚İ‚¾‚·
 extern	BOOL	GetVersionResoce(LPTSTR namestr, LPTSTR verstr, LPTSTR copystr, LPTSTR compstr, HINSTANCE hInstance);
+void	CalendCheckmenu(HMENU hmnu);
 
 /*	Aboutƒ_ƒCƒAƒƒO•\¦	*/
 void	About_dig(HWND hwnd)
@@ -584,6 +587,11 @@ int	wproc_command(HWND hwnd,int wParam,long lParam)
 		break;
 	case ID_OPTION_TIMER:	// ƒ^ƒCƒ}[İ’è
 		DialogBox(hInst, (LPTSTR)IDD_DIALOG1, hwnd, (DLGPROC)DialogProc);
+		{
+			HMENU	hmenu;
+			hmenu = GetMenu(hwnd);	/* ƒƒjƒ…[ƒnƒ“ƒhƒ‹‚ğ“¾‚é	*/
+			CalendCheckmenu(hmenu);	/* ƒƒjƒ…[‚Ìƒ`ƒFƒbƒN‚ğ•t‚¯’¼‚·	*/
+		}
 		break;
 	case ID_OPTION_ONE:
 		DialogBox(hInst, (LPTSTR)IDD_WC_ALARM, hwnd, (DLGPROC)DialogArmProc);
@@ -724,12 +732,16 @@ void	CalendCheckmenu(HMENU hmnu)
 {
 	pbs_MenuCheckd(hmnu, MNU_CLOCK, 0);
 	pbs_MenuCheckd(hmnu, MNU_CALENDER, 0);
+	pbs_MenuCheckd(hmnu, ID_OPTION_TIMER, 0);
 
 	if(Clockf!=FALSE){
 		pbs_MenuCheckd(hmnu, MNU_CLOCK, 1);
 	}
 	if(Calendf!=FALSE){
 		pbs_MenuCheckd(hmnu, MNU_CALENDER, 1);
+	}
+	if (bTimer != FALSE) {
+		pbs_MenuCheckd(hmnu, ID_OPTION_TIMER, 1);
 	}
 }
 
